@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a4d2e">
+    <title>Conserje Empedrado | Cabañas Corrientes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Karla:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --forest-dark: #1a4d2e;
+            --forest-mid: #2d6a4f;
+            --forest-light: #52b788;
+            --earth: #95815f;
+            --sand: #e8dcc4;
+            --water: #4a90a4;
+            --sunset: #d97642;
+            --white: #fefef9;
+            --shadow: rgba(26, 77, 46, 0.15);
+        }
+
+        body {
+            font-family: 'Karla', sans-serif;
+            background: linear-gradient(165deg, var(--sand) 0%, #f5efe0 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(82, 183, 136, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 144, 164, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-mid) 100%);
+            color: var(--white);
+            padding: 1.2rem 1rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '🌿';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            font-size: 5rem;
+            opacity: 0.1;
+            transform: rotate(25deg);
+        }
+
+        .header-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        /* Messages */
+        .message {
+            display: flex;
+            gap: 0.8rem;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .avatar.bot {
+            background: linear-gradient(135deg, var(--forest-mid), var(--forest-light));
+        }
+
+        .avatar.user {
+            background: linear-gradient(135deg, var(--water), var(--sunset));
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+
+        .message.bot .message-content {
+            background: var(--white);
+            border-bottom-left-radius: 4px;
+            color: var(--forest-dark);
+        }
+
+        .message.user .message-content {
+            background: var(--forest-mid);
+            border-bottom-right-radius: 4px;
+            color: var(--white);
+        }
+
+        /* Cabin Cards */
+        .cabin-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 0.8rem 0;
+            box-shadow: 0 4px 16px rgba(26, 77, 46, 0.1);
+            border-left: 4px solid var(--forest-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cabin-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(26, 77, 46, 0.15);
+        }
+
+        .cabin-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--forest-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cabin-capacity {
+            font-size: 0.85rem;
+            color: var(--earth);
+            margin-bottom: 0.8rem;
+        }
+
+        .cabin-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--forest-mid);
+            margin: 0.8rem 0;
+        }
+
+        .cabin-price small {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--earth);
+        }
+
+        .cabin-features {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .cabin-features li {
+            padding: 0.4rem 0;
+            color: var(--forest-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .cabin-features li::before {
+            content: '✨';
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: linear-gradient(135deg, var(--sunset), #e89b6f);
+            color: var(--white);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        /* Quick Options */
+        .quick-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .option-btn {
+            background: var(--white);
+            border: 2px solid var(--forest-light);
+            color: var(--forest-dark);
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            font-family: 'Karla', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .option-btn:active {
+            transform: scale(0.97);
+            background: var(--forest-light);
+            color: var(--white);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1rem;
+            background: var(--white);
+            border-top: 1px solid rgba(26, 77, 46, 0.1);
+            box-shadow: 0 -4px 20px var(--shadow);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid var(--forest-light);
+            border-radius: 25px;
+            font-family: 'Karla', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .input-field:focus {
+            border-color: var(--forest-mid);
+            box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.2);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--forest-mid), var(--forest-light));
+            border: none;
+            color: var(--white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(82, 183, 136, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:active {
+            transform: scale(0.9);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .typing-dots {
+            background: var(--white);
+            padding: 0.8rem 1.2rem;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            display: flex;
+            gap: 0.4rem;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--forest-mid);
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* Scrollbar */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: var(--forest-light);
+            border-radius: 10px;
+        }
+
+        /* Select Buttons */
+        .select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin: 1rem 0;
+        }
+
+        .select-btn {
+            background: var(--white);
+            border: 2px solid var(--forest-light);
+            color: var(--forest-dark);
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            font-family: 'Karla', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .select-btn:active,
+        .select-btn.selected {
+            background: var(--forest-mid);
+            color: var(--white);
+            border-color: var(--forest-mid);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">🌿 Conserje Empedrado</div>
+            <div class="header-subtitle">Tu estadía en Corrientes</div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <!-- Messages will be added here -->
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    class="input-field" 
+                    id="userInput" 
+                    placeholder="Escribe tu consulta..."
+                    autocomplete="off"
+                >
+                <button class="send-btn" id="sendBtn">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // State
+        let conversationState = 'welcome';
+        let userSelections = {
+            persons: null,
+            experience: null
+        };
+
+        // Cabin data
+        const cabins = {
+            romantic: [
+                {
+                    name: '🏆 Cabaña del Río',
+                    subtitle: 'La más romántica',
+                    capacity: '2-4 personas',
+                    price: '$25.000',
+                    total: '$25.000',
+                    features: [
+                        'Ubicación exclusiva frente al río Paraná',
+                        'Ambiente íntimo y tranquilo',
+                        'Deck privado con vista al agua',
+                        'Cocina equipada para cenas románticas',
+                        'Aire acondicionado y WiFi'
+                    ],
+                    badge: 'Recomendada'
+                },
+                {
+                    name: '🌸 Cabaña del Sol',
+                    capacity: '2-6 personas',
+                    price: '$20.000',
+                    total: '$20.000',
+                    features: [
+                        'Amplia y confortable',
+                        'Rodeada de naturaleza',
+                        'Excelente relación precio-calidad',
+                        'Equipamiento completo'
+                    ]
+                },
+                {
+                    name: '💎 Cabaña VIP Premium',
+                    capacity: '2-8 personas',
+                    price: '$35.000',
+                    total: '$35.000',
+                    features: [
+                        'La opción más sofisticada',
+                        'Amenities premium',
+                        'Máxima privacidad',
+                        'Ideal si buscan un mimo especial'
+                    ],
+                    badge: 'Lujo'
+                }
+            ]
+        };
+
+        // Tourist attractions data
+        const attractions = [
+            {
+                name: '🏛️ Punta Mercedes',
+                icon: '⚓',
+                description: 'Sitio histórico donde en 1865 se libró una batalla entre barcos de Brasil y Paraguay. Actualmente se encuentra una cadena que, según se dice, sujeta el casco de un barco hundido.',
+                category: 'Historia',
+                duration: '30-45 min'
+            },
+            {
+                name: '🎭 Teatro Dora',
+                icon: '🎨',
+                description: 'Fundado en 1916, declarado Monumento Histórico Provincial. Funciona como Casa de la Cultura con exposiciones, cursos, ferias y talleres de danzas folklóricas. Alberga el Museo de los Recuerdos.',
+                category: 'Cultura',
+                duration: '1-2 horas'
+            },
+            {
+                name: '🏰 Mansión de Invierno',
+                icon: '🌟',
+                description: 'Proyecto histórico de crear una ciudad de invierno. Empedrado fue elegido por sus características climáticas y geográficas ideales.',
+                category: 'Arquitectura',
+                duration: '30 min'
+            },
+            {
+                name: '🏕️ Camping Municipal',
+                icon: '🎪',
+                description: 'Sede del Festival de la Estudiantina cada 21 de septiembre, convocando a cientos de jóvenes de toda la región.',
+                category: 'Eventos',
+                duration: 'Variable'
+            },
+            {
+                name: '🗿 Monumento al Estudiante',
+                icon: '🕊️',
+                description: 'Representa la juventud y el estudio, diseñado con el contorno de una golondrina en vuelo.',
+                category: 'Monumento',
+                duration: '15-20 min'
+            },
+            {
+                name: '🎪 Anfiteatro Jerónimo Merello',
+                icon: '🎵',
+                description: 'Construido a fines de los años 60, escenario de las primeras estudiantinas.',
+                category: 'Cultura',
+                duration: '30 min'
+            },
+            {
+                name: '⛪ Iglesia Nuestro Señor Hallado',
+                icon: '✝️',
+                description: 'Fundada en 1825, venera un Cristo Crucificado de más de tres siglos sobre cruz de madera. Su araña central perteneció a la Mansión de Invierno y posee un altar mayor en mármol blanco.',
+                category: 'Religioso',
+                duration: '30-45 min'
+            }
+        ];
+
+        // Initialize chat
+        function initChat() {
+            addBotMessage(`
+                <div>
+                    Gracias por elegir nuestras cabañas. Mi compromiso es brindarte información clara, rápida y útil.
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(26, 77, 46, 0.1);">
+                    <strong>🔹 ¿Qué podés hacer ahora?</strong><br>
+                    1. Consultar cabañas con precios actualizados<br>
+                    2. Realizar una reserva<br>
+                    3. Descubrir lugares turísticos de Empedrado<br>
+                    4. Recibir info sobre restaurantes y servicios
+                </div>
+                <div style="margin-top: 1rem;">
+                    💬 Para empezar, decime tu nombre o hacé una pregunta directa.
+                </div>
+            `);
+            
+            setTimeout(() => {
+                addQuickOptions([
+                    'Mostrame cabañas para 2 personas',
+                    'Actividades en Empedrado',
+                    '¿Cómo hago una reserva?'
+                ]);
+            }, 1000);
+        }
+
+        // Add message
+        function addMessage(content, isBot = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isBot ? 'bot' : 'user'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="avatar ${isBot ? 'bot' : 'user'}">${isBot ? '🌿' : '👤'}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addBotMessage(content) {
+            showTyping();
+            setTimeout(() => {
+                removeTyping();
+                addMessage(content, true);
+            }, 1000);
+        }
+
+        function addUserMessage(content) {
+            addMessage(content, false);
+        }
+
+        // Typing indicator
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="avatar bot">🌿</div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        // Quick options
+        function addQuickOptions(options) {
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'message bot';
+            
+            const optionsHTML = options.map(option => 
+                `<button class="option-btn" onclick="handleQuickOption('${option}')">${option}</button>`
+            ).join('');
+            
+            optionsDiv.innerHTML = `
+                <div class="avatar bot">🌿</div>
+                <div class="message-content">
+                    <div class="quick-options">
+                        ${optionsHTML}
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(optionsDiv);
+            scrollToBottom();
+        }
+
+        // Selection buttons
+        function addSelectionButtons(question, options, key) {
+            const selectionDiv = document.createElement('div');
+            selectionDiv.className = 'message bot';
+            
+            const buttonsHTML = options.map(option => 
+                `<button class="select-btn" onclick="handleSelection('${option}', '${key}')">${option}</button>`
+            ).join('');
+            
+            selectionDiv.innerHTML = `
+                <div class="avatar bot">🌿</div>
+                <div class="message-content">
+                    <strong>${question}</strong>
+                    <div class="select-group">
+                        ${buttonsHTML}
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(selectionDiv);
+            scrollToBottom();
+        }
+
+        // Handle selection
+        function handleSelection(option, key) {
+            userSelections[key] = option;
+            addUserMessage(option);
+            
+            // Remove selection buttons
+            const buttons = document.querySelectorAll('.select-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (key === 'persons') {
+                setTimeout(() => {
+                    addSelectionButtons(
+                        '¿Qué tipo de experiencia buscás?',
+                        ['Romántica/pareja', 'Familiar con niños', 'Amigos/relax', 'Cerca del río'],
+                        'experience'
+                    );
+                }, 800);
+            } else if (key === 'experience') {
+                setTimeout(() => {
+                    showCabins();
+                }, 800);
+            }
+        }
+
+        // Show cabins
+        function showCabins() {
+            const cabinsHTML = cabins.romantic.map(cabin => `
+                <div class="cabin-card">
+                    <div class="cabin-title">${cabin.name}</div>
+                    ${cabin.subtitle ? `<div style="font-style: italic; color: var(--earth); margin-bottom: 0.5rem;">${cabin.subtitle}</div>` : ''}
+                    <div class="cabin-capacity">📍 ${cabin.capacity}</div>
+                    <div class="cabin-price">${cabin.price} <small>por noche</small></div>
+                    <div class="cabin-price" style="font-size: 1.2rem; color: var(--forest-dark);">Total 2 días: <strong>${cabin.total}</strong></div>
+                    <ul class="cabin-features">
+                        ${cabin.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                    ${cabin.badge ? `<div class="badge">${cabin.badge}</div>` : ''}
+                </div>
+            `).join('');
+            
+            addBotMessage(`
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;">
+                    Recomendaciones para parejas (2 días / 1 noche)
+                </div>
+                ${cabinsHTML}
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(82, 183, 136, 0.1); border-radius: 12px; border-left: 3px solid var(--forest-light);">
+                    <strong>Mi recomendación personal:</strong> La <strong>Cabaña del Río</strong> combina romanticismo, ubicación privilegiada y precio justo. El sonido del agua y la vista crean la atmósfera perfecta.
+                </div>
+                <div style="margin-top: 1rem;">
+                    💬 ¿Querés que te reserve alguna? ¿Necesitás más detalles sobre servicios o la zona?
+                </div>
+            `);
+        }
+
+        // Show attractions
+        function showAttractions() {
+            const attractionsHTML = attractions.map(attraction => `
+                <div class="cabin-card" style="border-left-color: var(--water);">
+                    <div class="cabin-title">${attraction.name}</div>
+                    <div style="display: flex; gap: 1rem; margin: 0.5rem 0; flex-wrap: wrap;">
+                        <span style="background: var(--forest-light); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">
+                            ${attraction.category}
+                        </span>
+                        <span style="color: var(--earth); font-size: 0.85rem;">
+                            ⏱️ ${attraction.duration}
+                        </span>
+                    </div>
+                    <div style="margin-top: 1rem; line-height: 1.6; color: var(--forest-dark);">
+                        ${attraction.description}
+                    </div>
+                </div>
+            `).join('');
+            
+            addBotMessage(`
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;">
+                    🗺️ Lugares para visitar en Empedrado
+                </div>
+                <div style="margin-bottom: 1rem; color: var(--earth);">
+                    Descubrí la historia y cultura de nuestro pueblo
+                </div>
+                ${attractionsHTML}
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(74, 144, 164, 0.1); border-radius: 12px; border-left: 3px solid var(--water);">
+                    <strong>💡 Consejo:</strong> Te recomiendo empezar por el Teatro Dora y la Iglesia Nuestro Señor Hallado. Después podés visitar Punta Mercedes al atardecer, ¡la vista es increíble!
+                </div>
+                <div style="margin-top: 1rem;">
+                    ¿Querés que te arme un itinerario personalizado para tu estadía?
+                </div>
+            `);
+        }
+
+        // Handle quick option click
+        function handleQuickOption(option) {
+            addUserMessage(option);
+            
+            if (option.includes('cabañas') || option.includes('2 personas')) {
+                setTimeout(() => {
+                    addSelectionButtons(
+                        '¿Cuántas personas van a alojarse?',
+                        ['2 personas', '3-4 personas', '5-6 personas', 'Más de 6 personas'],
+                        'persons'
+                    );
+                }, 800);
+            } 
+            else if (option.includes('Actividades') || option.includes('actividades') || option.includes('Info de la zona')) {
+                setTimeout(() => {
+                    showAttractions();
+                }, 800);
+            }
+            else if (option.includes('restaurantes')) {
+                setTimeout(() => {
+                    addBotMessage('¡Perfecto! Empedrado tiene opciones gastronómicas auténticas. ¿Qué tipo de comida preferís?');
+                    addQuickOptions([
+                        'Parrilla y carnes',
+                        'Pescados del río',
+                        'Comida casera correntina'
+                    ]);
+                }, 800);
+            } 
+            else if (option.includes('reserva')) {
+                setTimeout(() => {
+                    addBotMessage('Para hacer una reserva necesito algunos datos:<br><br>📅 Fecha de llegada<br>🌙 Cantidad de noches<br>👥 Cantidad de personas<br>🏡 Cabaña de preferencia<br><br>¿Empezamos con la fecha?');
+                }, 800);
+            }
+            else if (option.includes('Ver cabañas') || option.includes('Mostrame')) {
+                setTimeout(() => {
+                    addSelectionButtons(
+                        '¿Cuántas personas van a alojarse?',
+                        ['2 personas', '3-4 personas', '5-6 personas', 'Más de 6 personas'],
+                        'persons'
+                    );
+                }, 800);
+            }
+            else if (option.includes('consulta')) {
+                setTimeout(() => {
+                    addBotMessage('Estoy para ayudarte. ¿Qué necesitás saber?');
+                    addQuickOptions([
+                        'Precios de cabañas',
+                        'Lugares para visitar',
+                        'Cómo llegar a Empedrado'
+                    ]);
+                }, 800);
+            }
+        }
+
+        // Handle user input
+        function handleUserInput() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            
+            addUserMessage(text);
+            userInput.value = '';
+            
+            const lowerText = text.toLowerCase();
+            
+            // Simple response logic
+            setTimeout(() => {
+                if (lowerText.includes('hola') || lowerText.includes('buenos')) {
+                    addBotMessage('¡Hola! Bienvenido/a a Empedrado. ¿En qué puedo ayudarte hoy?');
+                    setTimeout(() => {
+                        addQuickOptions([
+                            'Ver cabañas disponibles',
+                            'Actividades en Empedrado',
+                            'Info de la zona'
+                        ]);
+                    }, 1000);
+                } 
+                else if (lowerText.includes('actividad') || lowerText.includes('hacer') || lowerText.includes('visitar') || lowerText.includes('turismo') || lowerText.includes('lugares') || lowerText.includes('paseo')) {
+                    showAttractions();
+                }
+                else if (lowerText.includes('precio') || lowerText.includes('costo')) {
+                    addBotMessage('Los precios varían según la cabaña y temporada. ¿Para cuántas personas estás buscando?');
+                    setTimeout(() => {
+                        addSelectionButtons(
+                            'Cantidad de personas:',
+                            ['2 personas', '3-4 personas', '5-6 personas', 'Más de 6 personas'],
+                            'persons'
+                        );
+                    }, 1000);
+                } 
+                else if (lowerText.includes('reserva') || lowerText.includes('reservar')) {
+                    addBotMessage('Para hacer una reserva necesito algunos datos:<br><br>📅 Fecha de llegada<br>🌙 Cantidad de noches<br>👥 Cantidad de personas<br>🏡 Cabaña de preferencia<br><br>¿Empezamos con la fecha?');
+                }
+                else {
+                    addBotMessage('Entiendo. ¿Puedo ayudarte con información sobre cabañas, lugares turísticos o servicios?');
+                    setTimeout(() => {
+                        addQuickOptions([
+                            'Mostrame las cabañas',
+                            'Actividades en Empedrado',
+                            'Quiero hacer una reserva'
+                        ]);
+                    }, 1000);
+                }
+            }, 800);
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserInput();
+        });
+
+        // Initialize
+        initChat();
+    </script>
+</body>
+</html>
